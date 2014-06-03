@@ -47,18 +47,6 @@ sub register {
 	return $text;
     });
 
-    $app->helper(number => sub {
-	my ($c, $number) = (shift, shift);
-	my %options = @_;
-	my $sep = $options{sep} // ',';
-	my $dec = $options{decimal};
-
-       (my $text = $number) =~ s/(\d)(?=(?:\d{3})+(?:\.\d+)?$)/$1$sep/g;
-	$text =~ s/\.(\d+)$/$dec$1/ if defined $dec;
-
-	return $text;
-    });
-
     $app->helper(sanitize => sub {
 	my $c    = shift;
 	my $html = shift;
@@ -114,11 +102,11 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, delimit, etc...
 
   $self->count(10, 'user');     # 10 users
   $self->count([User->new]);    # 1 user
-  $self->number('1500.55');     # 1,500.00
+  $self->number(1500.55);       # 1,500.00
   $self->paragraphs($text);     # <p>line 1</p><p>line 2</p>...
   $self->maxwords('a, b, c', 2) # a, b...
   $self->sanitize($html);       # remove all HTML
-  $self->sanitize($html, tags => ['a','p']); # keep <p> and <a> tags
+  $self->sanitize($html, tags => ['a','p']); # keep <a> and <p> tags
 
 =head1 METHODS
 
