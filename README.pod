@@ -16,11 +16,10 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, delimit, etc...
 
   $self->count(10, 'user');     # 10 users
   $self->count([User->new]);    # 1 user
-  $self->number('1500.55');     # 1,500.00
   $self->paragraphs($text);     # <p>line 1</p><p>line 2</p>...
   $self->maxwords('a, b, c', 2) # a, b...
   $self->sanitize($html);       # remove all HTML
-  $self->sanitize($html, tags => ['a','p']); # keep <p> and <a> tags
+  $self->sanitize($html, tags => ['a','p']); # keep <a> and <p> tags
 
 =head1 METHODS
 
@@ -39,18 +38,14 @@ Truncate C<$str> after C<$n> words. If C<$str> has more than C<$n> words traling
 punctuation characters are stripped from the C<$n>th word and C<'...'> is appended.
 An alternate ommision character can be given as the third option.
 
-=head2 number
-
-   $self->number(1500.55); # 1,500.55
-   $self->number(1500.55, sep => '.', decimal => ','); # 1.500,55
-
-Format a number.
-
 =head2 paragraphs
 
     $self->paragraphs($text);
 
-Wrap C<\r\n> delimited text in HTML paragraph tags (C<p>).
+Wrap lines seperated by empty C<\r\n> or C<\n> lines in HTML paragraph tags (C<p>).
+For example: C<A\r\n\r\nB\r\n> would be turned into C<< <p>A\r\n</p><p>B\r\n</p> >>.
+
+The returned HTML is assumed to be safe, it's wrapped in a L<Mojo::ByteStream>.
 
 =head2 sanitize
 
