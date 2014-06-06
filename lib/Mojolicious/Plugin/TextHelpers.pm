@@ -1,6 +1,7 @@
 package Mojolicious::Plugin::TextHelpers;
 
 use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Util 'trim';
 
 use Lingua::EN::Inflect;
 #use Carp 'croak';
@@ -8,8 +9,7 @@ use Lingua::EN::Inflect;
 our $VERSION = '0.01';
 
 sub register {
-    my ($self, $app, %defaults) = @_;
-
+    my ($self, $app) = @_;
 
     $app->helper(count => sub {
 	my ($c, $item, $type) = @_;
@@ -30,7 +30,7 @@ sub register {
 	return unless $text;
 
 	my $html = join '', map $c->tag('p', $_), split /^\s*\015?\012/m, $text;
-	return Mojo::ByteStream->new($html);
+	return $c->b($html);
     });
 
 
@@ -85,6 +85,14 @@ sub register {
 
 	return $doc->to_string;
     });
+
+    $app->helper(trim_param => sub {
+	my $c = shift;
+	for my $name (@_) {
+	    my $val = $c->param($name);
+	    $c->param($name => trim($val)) if defined $val;
+	}
+    });
 }
 
 1;
@@ -96,7 +104,7 @@ __END__
 
 =head1 NAME
 
-Mojolicious::Plugin::TextHelpers - Methods to format, count, delimit, etc...
+Mojolicious::Plugin::TextHelpers - Methods to format, count, sanitize, etc...
 
 =head1 SYNOPSIS
 
@@ -111,7 +119,12 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, delimit, etc...
   $self->paragraphs($text);     # <p>line 1</p><p>line 2</p>...
   $self->maxwords('a, b, c', 2) # a, b...
   $self->sanitize($html);       # remove all HTML
-  $self->sanitize($html, tags => ['a','p']); # keep <a> and <p> tags
+
+  # keep <a> and <p> tags
+  $self->sanitize($html, tags => ['a','p']);
+
+  # future calls to param($name[n]) return trimmed values
+  $self->trim_param(@names);
 
 =head1 METHODS
 
@@ -120,6 +133,9 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, delimit, etc...
     $self->count(10, 'user');           # 10 users
     $self->count([User->new]);          # 1 user
     $self->count([User->new], 'Luser'); # 1 Luser
+
+Use the singular or plural form of the word based on the number given by the first argument.
+If a non-empty array of objects are given the lowercase form of the package's basename is used.
 
 =head2 maxwords
 
@@ -144,11 +160,28 @@ The returned HTML is assumed to be safe, it's wrapped in a L<Mojo::ByteStream>.
     $self->sanitize($html);
     $self->sanitize($html, tags => ['a','p'], attr => ['href']);
 
-Remove all HTML tags in the string given by C<$html>. If C<tags> and/or C<attr>
-are given remove everything but those tags and attributes.
+Remove all HTML tags in the string given by C<$html>. If C<tags> and, optionally, C<attr>
+are given, remove everything but those tags and attributes.
+
+=head2 trim_param
+
+    $self->trim_param(@names);
+
+For each param name in C<@names>, make future call to L<Mojolicious::Controller/param>
+return the params' values without leading and trailing whitespace.
+
+In some cases it may be best to add this to your routes:
+
+  my $account = $self->routes->under(sub {
+    shift->trim_param('name', 'email', 'phone');
+    return 1;
+  });
+
+  $account->post('save')->to('account#save');
+  $account->post('update')->to('account#update');
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Lingua::EN::Inflect>, L<Number::Format>,
+L<Lingua::EN::Inflect>, L<Number::Format>,
 
 =cut
