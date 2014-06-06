@@ -8,7 +8,8 @@ use Lingua::EN::Inflect;
 our $VERSION = '0.01';
 
 sub register {
-    my ($self, $app) = @_;
+    my ($self, $app, %defaults) = @_;
+
 
     $app->helper(count => sub {
 	my ($c, $item, $type) = @_;
@@ -35,7 +36,7 @@ sub register {
 
     $app->helper(maxwords => sub {
 	my ($c, $text, $n) = @_;
-	
+
 	return $text unless $text and $n and $n > 0;
 
 	my $omited = @_ > 3 ? pop : '...';
