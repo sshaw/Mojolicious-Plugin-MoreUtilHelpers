@@ -9,7 +9,7 @@ use Lingua::EN::Inflect;
 our $VERSION = '0.01';
 
 sub register {
-    my ($self, $app) = @_;
+    my ($self, $app, $defaults) = @_;
 
     $app->helper(count => sub {
 	my ($c, $item, $type) = @_;
@@ -34,12 +34,15 @@ sub register {
     });
 
 
+    my $maxwords = $defaults->{maxwords};
     $app->helper(maxwords => sub {
-	my ($c, $text, $n) = @_;
+	my $c    = shift;
+	my $text = shift;
+	my $n    = shift // $maxwords->{max};
 
 	return $text unless $text and $n and $n > 0;
 
-	my $omited = @_ > 3 ? pop : '...';
+	my $omited = shift // $maxwords->{omit} // '...';
 	my @words  = split /\s+/, $text;
 	return $text unless @words > $n;
 
@@ -53,19 +56,26 @@ sub register {
 	return $text;
     });
 
+    my $sanitize = $defaults->{sanitize};
     $app->helper(sanitize => sub {
 	my $c    = shift;
 	my $html = shift;
 	return unless $html;
 
-	my %options = @_;
+	my %options  = @_;
+	my $optmerge = sub {
+	    my $opt = shift;
+	    map @$_, grep {
+		defined and ref eq 'ARRAY'
+	    } $sanitize->{$opt}, $options{$opt};
+	};
 
 	my (%tags, %attr);
-	my $names = $options{tags};
-	@tags{@$names} = (1) x @$names if ref $names eq 'ARRAY';
+	my @names = $optmerge->('tags');
+	@tags{@names} = (1) x @names;
 
-	$names= $options{attr};
-	@attr{@$names} = (1) x @$names if ref $names eq 'ARRAY';
+	@names = $optmerge->('attr');
+	@attr{@names} = (1) x @names; # if ref $names eq 'ARRAY';
 
 	my $doc = Mojo::DOM->new($html);
 	return $doc->all_text unless %tags;
@@ -109,10 +119,10 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, sanitize, etc...
 =head1 SYNOPSIS
 
   # Mojolicious
-  $self->plugin('TextHelpers');
+  $self->plugin('TextHelpers', %defaults);
 
   # Mojolicious::Lite
-  plugin 'TextHelpers';
+  plugin 'TextHelpers', %defaults;
 
   $self->count(10, 'user');     # 10 users
   $self->count([User->new]);    # 1 user
@@ -127,6 +137,13 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, sanitize, etc...
   $self->trim_param(@names);
 
 =head1 METHODS
+
+Defaults can be set for certain methods when the plugin is loaded.
+
+   $self->plugin('TextHelpers', maxwords => { omit => ' [snip]' },
+				sanitize => { tags => ['code', 'pre', 'a'] });
+
+See the method's docs for more info.
 
 =head2 count
 
@@ -146,6 +163,10 @@ Truncate C<$str> after C<$n> words. If C<$str> has more than C<$n> words traling
 punctuation characters are stripped from the C<$n>th word and C<'...'> is appended.
 An alternate ommision character can be given as the third option.
 
+=head3 Defaults
+
+   $self->plugin('TextHelpers', maxwords => { omit => ' [snip]', max => 20 });
+
 =head2 paragraphs
 
     $self->paragraphs($text);
@@ -163,12 +184,16 @@ The returned HTML is assumed to be safe, it's wrapped in a L<Mojo::ByteStream>.
 Remove all HTML tags in the string given by C<$html>. If C<tags> and -optionally- C<attr>
 are given, remove everything but those tags and attributes.
 
+=head3 Defaults
+
+   $self->plugin('TextHelpers', sanitize => { tags => ['a','p'], attr => ['href'] });
+
 =head2 trim_param
 
     $self->trim_param(@names);
 
 For each param name in C<@names>, make future call to L<Mojolicious::Controller/param>
-return the params' values without leading and trailing whitespace. In some cases it may be 
+return the params' values without leading and trailing whitespace. In some cases it may be
 best to add this to your routes via L<Mojolicious::Routes/under>:
 
   my $account = $self->routes->under(sub {
