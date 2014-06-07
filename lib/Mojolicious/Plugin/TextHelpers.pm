@@ -160,7 +160,7 @@ The returned HTML is assumed to be safe, it's wrapped in a L<Mojo::ByteStream>.
     $self->sanitize($html);
     $self->sanitize($html, tags => ['a','p'], attr => ['href']);
 
-Remove all HTML tags in the string given by C<$html>. If C<tags> and, optionally, C<attr>
+Remove all HTML tags in the string given by C<$html>. If C<tags> and -optionally- C<attr>
 are given, remove everything but those tags and attributes.
 
 =head2 trim_param
@@ -168,9 +168,8 @@ are given, remove everything but those tags and attributes.
     $self->trim_param(@names);
 
 For each param name in C<@names>, make future call to L<Mojolicious::Controller/param>
-return the params' values without leading and trailing whitespace.
-
-In some cases it may be best to add this to your routes:
+return the params' values without leading and trailing whitespace. In some cases it may be 
+best to add this to your routes via L<Mojolicious::Routes/under>:
 
   my $account = $self->routes->under(sub {
     shift->trim_param('name', 'email', 'phone');
@@ -183,5 +182,13 @@ In some cases it may be best to add this to your routes:
 =head1 SEE ALSO
 
 L<Lingua::EN::Inflect>, L<Number::Format>,
+
+=head1 AUTHOR
+
+Skye Shaw (skye.shaw [AT] gmail.com)
+
+=head1 LICENSE
+
+Copyright (c) 2012-2014 Skye Shaw. This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
