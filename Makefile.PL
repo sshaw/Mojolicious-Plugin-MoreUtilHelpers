@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
   NAME         => 'Mojolicious::Plugin::TextHelpers',
-  PREREQ_PM    => { 'Mojolicious' => '5.02', 
+  PREREQ_PM    => { 'Mojolicious' => '4.80',
 		    'Lingua::EN::Inflect' => 0 },
   test         => {TESTS => 't/*.t'},
   VERSION_FROM => 'lib/Mojolicious/Plugin/TextHelpers.pm',

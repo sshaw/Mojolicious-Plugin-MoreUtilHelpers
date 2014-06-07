@@ -63,19 +63,13 @@ sub register {
 	return unless $html;
 
 	my %options  = @_;
-	my $optmerge = sub {
-	    my $opt = shift;
-	    map @$_, grep {
-		defined and ref eq 'ARRAY'
-	    } $sanitize->{$opt}, $options{$opt};
-	};
 
 	my (%tags, %attr);
-	my @names = $optmerge->('tags');
-	@tags{@names} = (1) x @names;
+	my $names = $options{tags} // $sanitize->{tags};
+	@tags{@$names} = (1) x @$names if ref $names eq 'ARRAY';
 
-	@names = $optmerge->('attr');
-	@attr{@names} = (1) x @names; # if ref $names eq 'ARRAY';
+	$names = $options{attr} // $sanitize->{attr};
+	@attr{@$names} = (1) x @$names if ref $names eq 'ARRAY';
 
 	my $doc = Mojo::DOM->new($html);
 	return $doc->all_text unless %tags;
@@ -139,37 +133,37 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, sanitize, etc...
 =head1 METHODS
 
 Defaults can be set for certain methods when the plugin is loaded.
+ 
+  $self->plugin('TextHelpers', maxwords => { omit => ' [snip]' },
+    			       sanitize => { tags => ['code', 'pre', 'a'] });
 
-   $self->plugin('TextHelpers', maxwords => { omit => ' [snip]' },
-				sanitize => { tags => ['code', 'pre', 'a'] });
-
-See the method's docs for more info.
+By default, unless stated otherwise, no defaults are set. See the methods docs for more info.
 
 =head2 count
 
-    $self->count(10, 'user');           # 10 users
-    $self->count([User->new]);          # 1 user
-    $self->count([User->new], 'Luser'); # 1 Luser
+  $self->count(10, 'user');           # 10 users
+  $self->count([User->new]);          # 1 user
+  $self->count([User->new], 'Luser'); # 1 Luser
 
 Use the singular or plural form of the word based on the number given by the first argument.
 If a non-empty array of objects are given the lowercase form of the package's basename is used.
 
 =head2 maxwords
 
-   $self->maxwords($str, $n);
-   $self->maxwords($str, $n, '&hellip;');
+  $self->maxwords($str, $n);
+  $self->maxwords($str, $n, '&hellip;');
 
 Truncate C<$str> after C<$n> words. If C<$str> has more than C<$n> words traling
 punctuation characters are stripped from the C<$n>th word and C<'...'> is appended.
 An alternate ommision character can be given as the third option.
 
-=head3 Defaults
+=head3 Setting Defaults
 
-   $self->plugin('TextHelpers', maxwords => { omit => ' [snip]', max => 20 });
+  $self->plugin('TextHelpers', maxwords => { omit => ' [snip]', max => 20 });
 
 =head2 paragraphs
 
-    $self->paragraphs($text);
+  $self->paragraphs($text);
 
 Wrap lines seperated by empty C<\r\n> or C<\n> lines in HTML paragraph tags (C<p>).
 For example: C<A\r\n\r\nB\r\n> would be turned into C<< <p>A\r\n</p><p>B\r\n</p> >>.
@@ -178,21 +172,21 @@ The returned HTML is assumed to be safe, it's wrapped in a L<Mojo::ByteStream>.
 
 =head2 sanitize
 
-    $self->sanitize($html);
-    $self->sanitize($html, tags => ['a','p'], attr => ['href']);
+  $self->sanitize($html);
+  $self->sanitize($html, tags => ['a','p'], attr => ['href']);
 
 Remove all HTML tags in the string given by C<$html>. If C<tags> and -optionally- C<attr>
 are given, remove everything but those tags and attributes.
 
-=head3 Defaults
+=head3 Setting Defaults
 
-   $self->plugin('TextHelpers', sanitize => { tags => ['a','p'], attr => ['href'] });
+  $self->plugin('TextHelpers', sanitize => { tags => ['a','p'], attr => ['href'] });
 
 =head2 trim_param
 
-    $self->trim_param(@names);
+  $self->trim_param(@names);
 
-For each param name in C<@names>, make future call to L<Mojolicious::Controller/param>
+For each param name in C<@names>, make future calls to L<Mojolicious::Controller/param>
 return the params' values without leading and trailing whitespace. In some cases it may be
 best to add this to your routes via L<Mojolicious::Routes/under>:
 
