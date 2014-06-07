@@ -33,10 +33,10 @@ get '/maxwords_with_zero_max' => sub {
 
 
 my $t = Test::Mojo->new;
-$t->get_ok('/maxwords')->status_is(200)->content_is('a, b...');
-$t->get_ok('/maxwords_with_omit_option')->status_is(200)->content_is('a, b [snip]');
-$t->get_ok('/maxwords_with_nothing_omited')->status_is(200)->content_is('a, b, c');
-$t->get_ok('/maxwords_with_negative_max')->status_is(200)->content_is('a, b, c');
-$t->get_ok('/maxwords_with_zero_max')->status_is(200)->content_is('a, b, c');
+$t->get_ok('/maxwords')->content_is('a, b...');
+$t->get_ok('/maxwords_with_omit_option')->content_is('a, b [snip]');
+$t->get_ok('/maxwords_with_nothing_omited')->content_is('a, b, c');
+$t->get_ok('/maxwords_with_negative_max')->content_is('a, b, c');
+$t->get_ok('/maxwords_with_zero_max')->content_is('a, b, c');
 
 done_testing();

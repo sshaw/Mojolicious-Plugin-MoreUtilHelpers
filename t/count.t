@@ -38,10 +38,10 @@ get '/count_plural_with_object' => sub {
 };
 
 my $t = Test::Mojo->new;
-$t->get_ok('/count_single')->status_is(200)->content_is('1 user');
-$t->get_ok('/count_single_with_object')->status_is(200)->content_is('1 user');
-$t->get_ok('/count_single_with_object_and_label')->status_is(200)->content_is('1 luser');
-$t->get_ok('/count_plural')->status_is(200)->content_is('2 users');
-$t->get_ok('/count_plural_with_object')->status_is(200)->content_is('2 users');
+$t->get_ok('/count_single')->content_is('1 user');
+$t->get_ok('/count_single_with_object')->content_is('1 user');
+$t->get_ok('/count_single_with_object_and_label')->content_is('1 luser');
+$t->get_ok('/count_plural')->content_is('2 users');
+$t->get_ok('/count_plural_with_object')->content_is('2 users');
 
 done_testing();
