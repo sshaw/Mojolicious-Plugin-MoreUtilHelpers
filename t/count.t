@@ -10,7 +10,7 @@ sub new { bless {}, shift }
 
 package main;
 
-plugin 'TextHelpers';
+plugin 'MoreUtilHelpers';
 
 get '/count_single' => sub {
   my $self = shift;

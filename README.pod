@@ -4,15 +4,15 @@
 
 =head1 NAME
 
-Mojolicious::Plugin::TextHelpers - Methods to format, count, sanitize, etc...
+Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc...
 
 =head1 SYNOPSIS
 
   # Mojolicious
-  $self->plugin('TextHelpers', %defaults);
+  $self->plugin('MoreUtilHelpers', %defaults);
 
   # Mojolicious::Lite
-  plugin 'TextHelpers', %defaults;
+  plugin 'MoreUtilHelpers', %defaults;
 
   $self->count(10, 'user');     # 10 users
   $self->count([User->new]);    # 1 user
@@ -30,7 +30,7 @@ Mojolicious::Plugin::TextHelpers - Methods to format, count, sanitize, etc...
 
 Defaults can be set for certain methods when the plugin is loaded.
  
-  $self->plugin('TextHelpers', maxwords => { omit => ' [snip]' },
+  $self->plugin('MoreUtilHelpers', maxwords => { omit => ' [snip]' },
     			       sanitize => { tags => ['code', 'pre', 'a'] });
 
 By default, unless stated otherwise, no defaults are set. See the methods docs for more info.
@@ -55,7 +55,7 @@ An alternate ommision character can be given as the third option.
 
 =head3 Setting Defaults
 
-  $self->plugin('TextHelpers', maxwords => { omit => ' [snip]', max => 20 });
+  $self->plugin('MoreUtilHelpers', maxwords => { omit => ' [snip]', max => 20 });
 
 =head2 paragraphs
 
@@ -76,7 +76,7 @@ are given, remove everything but those tags and attributes.
 
 =head3 Setting Defaults
 
-  $self->plugin('TextHelpers', sanitize => { tags => ['a','p'], attr => ['href'] });
+  $self->plugin('MoreUtilHelpers', sanitize => { tags => ['a','p'], attr => ['href'] });
 
 =head2 trim_param
 

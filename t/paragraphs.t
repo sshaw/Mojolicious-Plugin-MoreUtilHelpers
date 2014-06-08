@@ -4,7 +4,7 @@ use Test::More;
 use Test::Mojo;
 use Mojolicious::Lite;
 
-plugin 'TextHelpers';
+plugin 'MoreUtilHelpers';
 
 sub text { join shift, qw|a b c| }
 

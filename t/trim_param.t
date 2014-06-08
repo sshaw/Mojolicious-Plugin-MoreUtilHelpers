@@ -4,7 +4,7 @@ use Test::More;
 use Test::Mojo;
 use Mojolicious::Lite;
 
-plugin 'TextHelpers';
+plugin 'MoreUtilHelpers';
 
 get '/trim_param' => sub {
   my $self = shift;

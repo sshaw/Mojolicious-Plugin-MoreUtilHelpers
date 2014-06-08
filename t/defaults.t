@@ -4,7 +4,7 @@ use Test::More;
 use Test::Mojo;
 use Mojolicious::Lite;
 
-plugin 'TextHelpers', 
+plugin 'MoreUtilHelpers', 
     maxwords => { max => 1, omit => '!' },
     sanitize => { tags  => ['a'], attr => ['href'] };
 
