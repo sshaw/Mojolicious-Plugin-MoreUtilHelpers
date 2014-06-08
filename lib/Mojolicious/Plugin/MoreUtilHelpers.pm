@@ -1,3 +1,108 @@
+package Mojolicious::Plugin::MoreUtilHelpers;
+
+use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Util 'trim';
+
+use Lingua::EN::Inflect;
+
+our $VERSION = '0.01';
+
+sub register {
+    my ($self, $app, $defaults) = @_;
+
+    $app->helper(count => sub {
+	my ($c, $item, $type) = @_;
+	my $count = $item;
+	return unless defined $item;
+
+	my $tr    = sub { lc( (split /::/, ref(shift))[-1] ) };
+
+	if(ref($item) eq 'ARRAY') {
+	    $count = @$item;
+	    $type  = $tr->($item->[0]) unless $type;
+	}
+
+	$type ||= $tr->($item);
+	return "$count " . Lingua::EN::Inflect::PL($type, $count);
+    });
+
+    $app->helper(paragraphs => sub {
+	my ($c, $text) = @_;
+	return unless $text;
+
+	my $html = join '', map $c->tag('p', $_), split /^\s*\015?\012/m, $text;
+	return $c->b($html);
+    });
+
+
+    my $maxwords = $defaults->{maxwords};
+    $app->helper(maxwords => sub {
+	my $c    = shift;
+	my $text = shift;
+	my $n    = shift // $maxwords->{max};
+
+	return $text unless $text and $n and $n > 0;
+
+	my $omited = shift // $maxwords->{omit} // '...';
+	my @words  = split /\s+/, $text;
+	return $text unless @words > $n;
+
+	$text = join ' ', @words[0..$n-1];
+
+	if(@words > $n) {
+	    $text =~ s/[[:punct:]]$//;
+	    $text .= $omited;
+	}
+
+	return $text;
+    });
+
+    my $sanitize = $defaults->{sanitize};
+    $app->helper(sanitize => sub {
+	my $c    = shift;
+	my $html = shift;
+	return unless $html;
+
+	my %options  = @_;
+
+	my (%tags, %attr);
+	my $names = $options{tags} // $sanitize->{tags};
+	@tags{@$names} = (1) x @$names if ref $names eq 'ARRAY';
+
+	$names = $options{attr} // $sanitize->{attr};
+	@attr{@$names} = (1) x @$names if ref $names eq 'ARRAY';
+
+	my $doc = Mojo::DOM->new($html);
+	return $doc->all_text unless %tags;
+
+	for my $node (@{$doc->all_contents}) {
+	    if(!$tags{ $node->type }) {
+		$node->strip;
+		next;
+	    }
+
+	    if(%attr) {
+		for my $name (keys %{$node->attr}) {
+		    delete $node->attr->{$name} unless $attr{$name};
+		}
+	    }
+	}
+
+	return $c->b($doc->to_string);
+    });
+
+    $app->helper(trim_param => sub {
+	my $c = shift;
+	for my $name (@_) {
+	    my $val = $c->param($name);
+	    $c->param($name => trim($val)) if defined $val;
+	}
+    });
+}
+
+1;
+__END__
+
 =pod
 
 =encoding utf8
@@ -31,7 +136,7 @@ Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc..
 Defaults can be set for certain methods when the plugin is loaded.
  
   $self->plugin('MoreUtilHelpers', maxwords => { omit => ' [snip]' },
-    			       sanitize => { tags => ['code', 'pre', 'a'] });
+    			           sanitize => { tags => ['code', 'pre', 'a'] });
 
 By default and, unless stated otherwise, no defaults are set. See the method docs for more info.
 
@@ -111,6 +216,4 @@ Skye Shaw (skye.shaw [AT] gmail.com)
 
 Copyright (c) 2012-2014 Skye Shaw. This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-
 =cut
-
