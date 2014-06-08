@@ -31,7 +31,7 @@ Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc..
 Defaults can be set for certain methods when the plugin is loaded.
  
   $self->plugin('MoreUtilHelpers', maxwords => { omit => ' [snip]' },
-    			       sanitize => { tags => ['code', 'pre', 'a'] });
+    			           sanitize => { tags => ['code', 'pre', 'a'] });
 
 By default and, unless stated otherwise, no defaults are set. See the method docs for more info.
 
