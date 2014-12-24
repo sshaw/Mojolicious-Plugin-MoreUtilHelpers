@@ -1,11 +1,12 @@
 package Mojolicious::Plugin::MoreUtilHelpers;
 
 use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Collection;
 use Mojo::Util 'trim';
 
 use Lingua::EN::Inflect;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub register {
     my ($self, $app, $defaults) = @_;
@@ -98,6 +99,17 @@ sub register {
 	    $c->param($name => trim($val)) if defined $val;
 	}
     });
+
+    $app->helper(collection => sub {
+	my $c = shift;
+	my @data = ( @_ == 1 && ref($_[0]) eq 'ARRAY' ? @{$_[0]} : @_ );
+	Mojo::Collection->new(@data == 1 && !defined $data[0] ? () : @data );
+    });
+
+    if($defaults->{collection}->{patch}) {
+	$app->helper(c => sub { shift->collection(@_) });
+    }
+
 }
 
 1;
@@ -131,10 +143,14 @@ Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc..
   # future calls to param($name[n]) return trimmed values
   $self->trim_param(@names);
 
+  # DWIM Mojo::Collection
+  $self->collection(@data);
+  $self->collection($data);
+
 =head1 METHODS
 
 Defaults can be set for certain methods when the plugin is loaded.
- 
+
   $self->plugin('MoreUtilHelpers', maxwords => { omit => ' [snip]' },
     			           sanitize => { tags => ['code', 'pre', 'a'] });
 
@@ -148,6 +164,35 @@ By default and, unless stated otherwise, no defaults are set. See the method doc
 
 Use the singular or plural form of the word based on the number given by the first argument.
 If a non-empty array of objects are given the lowercase form of the package's basename is used.
+
+=head2 collection
+
+  $self->collection(1,2,3)
+  $self->collection([1,2,3]);
+  $self->collection(undef);  # empty collection
+
+DWIM (B<D>o B<W>hat B<I> B<M>ean) L<Mojo::Collection> creation.
+Currently C<Mojo::Collection> does not differentiate between C<undef> and array ref arguments. For example:
+
+  $self->c(1)->to_array;         # [1]
+  $self->c([1])->to_array;       # [[1]]
+  $self->c(undef)->to_array;     # [undef]
+  $self->c([1,2,[3]])->to_array; # [[1,2,[3]]]
+
+Using C<collection> to create a C<Mojo::Collection> will give you the following:
+
+  $self->collection(1)->to_array;         # [1]
+  $self->collection([1])->to_array;       # [1]
+  $self->collection(undef)->to_array;     # []
+  $self->collection([1,2,[3]])->to_array; # [1,2,[3]]
+
+=head3 Making This Behavior The Default
+
+To replace L<< the C<c> helper|Mojolicious::Plugin::DefaultHelpers/c >> with C<collection>:
+
+  $self->plugin('MoreUtilHelpers', collection => { patch => 1 });
+
+This B<does not> replace L<Mojo::Collection::c>.
 
 =head2 maxwords
 
@@ -201,7 +246,7 @@ best to add this to your routes via L<Mojolicious::Routes/under>:
   $account->post('save')->to('account#save');
   $account->post('update')->to('account#update');
 
-Now calling C<< $self->param >> in these actions for C<'name'>, C<'email'> or C<'phone'> will 
+Now calling C<< $self->param >> in these actions for C<'name'>, C<'email'> or C<'phone'> will
 return a trimmed result.
 
 =head1 SEE ALSO
