@@ -252,7 +252,7 @@ return a trimmed result.
 
 =head1 SEE ALSO
 
-L<Lingua::EN::Inflect>, L<Number::Format>, L<List::Cycle>
+L<Lingua::EN::Inflect>, L<Number::Format>, L<List::Cycle>, L<Mojolicious::Plugin::UtilHelpers|https://github.com/sharifulin/mojolicious-plugin-utilhelpers>
 
 =head1 AUTHOR
 
