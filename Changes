@@ -1,7 +1,7 @@
-v0.0.2    2014-24-12
---------------------
-* Add collection helper
-
 v0.0.3    2014-24-12
 --------------------
 * trim_param now accepts regexps
+
+v0.0.2    2014-24-12
+--------------------
+* Add collection helper
