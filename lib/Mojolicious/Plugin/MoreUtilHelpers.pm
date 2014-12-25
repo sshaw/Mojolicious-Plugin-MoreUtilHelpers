@@ -3,11 +3,11 @@ package Mojolicious::Plugin::MoreUtilHelpers;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Collection;
 use Mojo::DOM;
-use Mojo::Util 'trim';
+use Mojo::Util;
 
 use Lingua::EN::Inflect;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub register {
     my ($self, $app, $defaults) = @_;
@@ -95,16 +95,37 @@ sub register {
 
     $app->helper(trim_param => sub {
 	my $c = shift;
+	return unless @_;
+
+	my $trim = sub {
+	    my $name = shift;
+	    my $val  = $c->param($name);
+	    $c->param($name => Mojo::Util::trim($val)) if defined $val;
+	};
+
+	my %params;
+	my @names = $c->param;
+	@params{ @names } = (1) x @names;
+
 	for my $name (@_) {
-	    my $val = $c->param($name);
-	    $c->param($name => trim($val)) if defined $val;
+	    if(ref($name) ne 'Regexp') {
+		$trim->($name);
+		next;
+	    }
+
+	    for(keys %params) {
+		next unless $_ =~ $name;
+
+		$trim->($_);
+		delete $params{$_};
+	    }
 	}
     });
 
     $app->helper(collection => sub {
 	my $c = shift;
 	my @data = ( @_ == 1 && ref($_[0]) eq 'ARRAY' ? @{$_[0]} : @_ );
-	Mojo::Collection->new(@data == 1 && !defined $data[0] ? () : @data );
+	return Mojo::Collection->new(@data == 1 && !defined $data[0] ? () : @data );
     });
 
     if($defaults->{collection}->{patch}) {
@@ -234,10 +255,13 @@ The returned HTML is assumed to be safe and is wrapped in a L<Mojo::ByteStream>.
 =head2 trim_param
 
   $self->trim_param(@names);
+  $self->trim_param(qr{user\.});
 
 For each param name in C<@names>, make future calls to L<Mojolicious::Controller/param>
-return these params' values without leading and trailing whitespace. In some cases it may be
-best to add this to your routes via L<Mojolicious::Routes/under>:
+return these params' values without leading and trailing whitespace. If an element of C<@names>
+is a regexp all matching param names will be processed.
+
+In some cases it may be best to add this to your routes via L<Mojolicious::Routes/under>:
 
   my $account = $self->routes->under(sub {
     shift->trim_param('name', 'email', 'phone');
@@ -249,6 +273,8 @@ best to add this to your routes via L<Mojolicious::Routes/under>:
 
 Now calling C<< $self->param >> in these actions for C<'name'>, C<'email'> or C<'phone'> will
 return a trimmed result.
+
+Leading/trailing whitespace is removed by calling L<Mojo::Util::trim>.
 
 =head1 SEE ALSO
 
