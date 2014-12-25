@@ -135,7 +135,7 @@ In some cases it may be best to add this to your routes via L<Mojolicious::Route
 Now calling C<< $self->param >> in these actions for C<'name'>, C<'email'> or C<'phone'> will
 return a trimmed result.
 
-Leading/trailing whitespace is removed by calling L<Mojo::Util::trim>.
+Leading/trailing whitespace is removed by calling L<Mojo::Util/trim>.
 
 =head1 SEE ALSO
 
