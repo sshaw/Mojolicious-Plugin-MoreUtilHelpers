@@ -2,6 +2,7 @@ package Mojolicious::Plugin::MoreUtilHelpers;
 
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Collection;
+use Mojo::DOM;
 use Mojo::Util 'trim';
 
 use Lingua::EN::Inflect;
