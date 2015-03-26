@@ -77,8 +77,8 @@ sub register {
 	my $doc = Mojo::DOM->new($html);
 	return $doc->all_text unless %tags;
 
-	for my $node (@{$doc->all_contents}) {
-	    if(!$tags{ $node->type }) {
+	for my $node (@{$doc->descendant_nodes}) {
+	    if($node->tag && !$tags{ $node->tag }) {
 		$node->strip;
 		next;
 	    }
@@ -104,8 +104,8 @@ sub register {
 	};
 
 	my %params;
-	my @names = $c->param;
-	@params{ @names } = (1) x @names;
+	my $names = $c->req->params->names;
+	@params{ @$names } = (1) x @$names;
 
 	for my $name (@_) {
 	    if(ref($name) ne 'Regexp') {
