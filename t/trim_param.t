@@ -16,6 +16,14 @@ get '/trim_param' => sub {
   $self->render(text => "$a|$b");
 };
 
+get '/trim_param_array' => sub {
+  my $self = shift;
+  $self->trim_param('a');
+
+  my @a = @{ $self->every_param('a') };
+  $self->render(text => "$a[0]|$a[1]");
+};
+
 get '/trim_param_no_param' => sub {
   my $self = shift;
   $self->trim_param('a');
@@ -71,6 +79,7 @@ my $params = { a => ' foo ', b => ' moo '};
 my $t = Test::Mojo->new;
 $t->get_ok('/trim_param', form => $params)->content_is('foo| moo ');
 $t->get_ok('/trim_param_no_param')->content_is('');
+$t->get_ok('/trim_param_array', form => {a => [' foo ', ' moo ']})->content_is('foo|moo');
 $t->get_ok('/trim_param_multi', form => $params)->content_is('foo|moo');
 $t->get_ok('/trim_param_regex', form => $params)->content_is('foo| moo ');
 $t->get_ok('/trim_param_regex_mixed', form => $params)->content_is('foo|moo');

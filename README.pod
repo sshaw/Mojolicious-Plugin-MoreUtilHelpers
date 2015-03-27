@@ -30,6 +30,12 @@ Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc..
   $self->collection(@data);
   $self->collection($data);
 
+=head1 MOJOLICIOUS VERSION
+
+This version requires Mojolicious >= 6.0. If you're using an earlier version of Mojolicious
+you must use L<version 0.03|https://github.com/sshaw/Mojolicious-Plugin-MoreUtilHelpers/tree/v0.03>
+of this module.
+
 =head1 METHODS
 
 Defaults can be set for certain methods when the plugin is loaded.

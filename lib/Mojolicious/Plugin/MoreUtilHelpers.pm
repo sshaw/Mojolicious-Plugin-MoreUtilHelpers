@@ -7,7 +7,7 @@ use Mojo::Util;
 
 use Lingua::EN::Inflect;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub register {
     my ($self, $app, $defaults) = @_;
@@ -65,7 +65,7 @@ sub register {
 	my $html = shift;
 	return unless $html;
 
-	my %options  = @_;
+	my %options = @_;
 
 	my (%tags, %attr);
 	my $names = $options{tags} // $sanitize->{tags};
@@ -99,8 +99,11 @@ sub register {
 
 	my $trim = sub {
 	    my $name = shift;
-	    my $val  = $c->param($name);
-	    $c->param($name => Mojo::Util::trim($val)) if defined $val;
+	    my $vals = $c->every_param($name);
+
+	    $c->param($name => @$vals == 1 ?
+		      Mojo::Util::trim($vals->[0]) :
+		      [ map Mojo::Util::trim($_), @$vals ]);
 	};
 
 	my %params;
@@ -135,6 +138,7 @@ sub register {
 }
 
 1;
+
 __END__
 
 =pod
@@ -168,6 +172,12 @@ Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc..
   # DWIM Mojo::Collection
   $self->collection(@data);
   $self->collection($data);
+
+=head1 MOJOLICIOUS VERSION
+
+This version requires Mojolicious >= 6.0. If you're using an earlier version of Mojolicious
+you must use L<version 0.03|https://github.com/sshaw/Mojolicious-Plugin-MoreUtilHelpers/tree/v0.03>
+of this module.
 
 =head1 METHODS
 
