@@ -1,3 +1,7 @@
+v0.0.5    2015-03-28
+--------------------
+* Bug fix: Specify Mojolicious 6.0 as the minimum requirement in Makefile.PL
+
 v0.0.4    2015-03-26
 --------------------
 * Fixes for Mojolicious 6.0
