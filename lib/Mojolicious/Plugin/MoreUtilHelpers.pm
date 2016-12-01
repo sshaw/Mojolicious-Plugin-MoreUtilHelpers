@@ -7,7 +7,7 @@ use Mojo::Util;
 
 use Lingua::EN::Inflect;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub register {
     my ($self, $app, $defaults) = @_;
@@ -181,9 +181,9 @@ Mojolicious::Plugin::MoreUtilHelpers - Methods to format, count, sanitize, etc..
 
 =head1 MOJOLICIOUS VERSION
 
-This version requires Mojolicious >= 6.0. If you're using an earlier version of Mojolicious
-you must use L<version 0.03|https://github.com/sshaw/Mojolicious-Plugin-MoreUtilHelpers/tree/v0.03>
-of this module.
+This version requires Mojolicious >= 7.0. If you're using an earlier version of Mojolicious
+you must use L<version 0.05|https://github.com/sshaw/Mojolicious-Plugin-MoreUtilHelpers/tree/v0.05>
+or lower of this module.
 
 =head1 METHODS
 
