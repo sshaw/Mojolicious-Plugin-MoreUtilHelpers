@@ -75,7 +75,13 @@ sub register {
 	@attr{@$names} = (1) x @$names if ref $names eq 'ARRAY';
 
 	my $doc = Mojo::DOM->new($html);
-	return $doc->all_text unless %tags;
+        if (! %tags) {
+	    my $txt = $doc->all_text;
+            $txt =~ s/\s+/ /g;
+            $txt =~ s/^ //;
+            $txt =~ s/ $//;
+            return $txt;
+        }
 
 	for my $node (@{$doc->descendant_nodes}) {
 	    if($node->tag && !$tags{ $node->tag }) {
